@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>QRコード生成</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 5px;
+            font-size: 50%;
+            width: 100%;
+        }
+
+        #text-input {
+            width: 70%; /* 横幅を70%に設定 */
+            height: 70vh; /* 縦幅は固定 */
+            margin-bottom: 10px;
+        }
+
+        #generate-button {
+            font-size: 20px;
+            padding: 15px 30px;
+            background-color: grey;
+            color: red;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 200px;
+            margin: auto;
+        }
+
+        #generate-button:hover {
+            background-color: #666;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        #qrcode div {
+            margin-bottom: 200px; /* QRコード間の空間 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>以下のスペースにテキストをコピー</h1>
+        <textarea id="text-input" rows="4" cols="50"></textarea><br>
+        <button id="generate-button">QRコード生成</button>
+        <div id="qrcode"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script>
+        document.getElementById('generate-button').addEventListener('click', function() {
+            var text = document.getElementById('text-input').value;
+            if (text.length > 1000) {
+                alert('テキストは1000文字以下にしてください。');
+                return;
+            }
+
+            var segments = splitText(text, 600); // 文字数を600に変更
+            var qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = '';
+
+            segments.forEach(function(segment, index) {
+                var qr = document.createElement('div');
+                qrcodeContainer.appendChild(qr);
+
+                QRCode.toDataURL(segment, { width: 200, height: 200 }, function (err, url) {
+                    var img = document.createElement('img');
+                    img.src = url;
+                    qr.appendChild(img);
+                });
+            });
+
+            setTimeout(function() {
+                var qrCodePosition = qrcodeContainer.getBoundingClientRect().top + window.scrollY;
+                window.scrollTo({ top: qrCodePosition, behavior: 'smooth' });
+            }, 500);
+        });
+
+        function splitText(text, maxLength) {
+            var segments = [];
+            for (var i = 0; i < text.length; i += maxLength) {
+                segments.push(text.substring(i, i + maxLength));
+            }
+            return segments;
+        }
+    </script>
+</body>
+</html>
